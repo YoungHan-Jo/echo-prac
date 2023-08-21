@@ -5,7 +5,10 @@ import (
 
 	"github.com/stripe/stripe-go/v74"
 	"github.com/stripe/stripe-go/v74/card"
+	"github.com/stripe/stripe-go/v74/checkout/session"
 	"github.com/stripe/stripe-go/v74/customer"
+	"github.com/stripe/stripe-go/v74/paymentintent"
+	"github.com/stripe/stripe-go/v74/paymentmethod"
 	"github.com/stripe/stripe-go/v74/price"
 	"github.com/stripe/stripe-go/v74/product"
 	"github.com/stripe/stripe-go/v74/subscription"
@@ -24,11 +27,101 @@ func createCard() error {
 	params := &stripe.CardParams{
 		Customer: stripe.String("cus_OSwy42WPhIJtir"),
 		// Token:    stripe.String("tok_jcb"),
-		Token: stripe.String("tok_1Ng2a4J39MhrdOSILWxRZrsl"),
+		Token: stripe.String("tok_1NhTmEJ39MhrdOSIDukixKt4"),
 	}
 	c, err := card.New(params)
 
-	fmt.Println(c)
+	fmt.Println(c.ID)
+	return err
+}
+
+func createSession() error {
+	params := &stripe.CheckoutSessionParams{
+		LineItems: []*stripe.CheckoutSessionLineItemParams{
+			{
+				Price:    stripe.String("price_1NfzmjJ39MhrdOSI1lK8jKJ3"),
+				Quantity: stripe.Int64(3),
+			},
+		},
+		Mode:       stripe.String("payment"),                       // payment, setup, subscription
+		SuccessURL: stripe.String("http://localhost:3333/success"), // 決済成功した後、戻ってくるUrl
+	}
+	s, err := session.New(params)
+
+	fmt.Println("session id : ", s.ID)
+	fmt.Println("cancel url : ", s.CancelURL)
+	fmt.Println("pi : ", s.PaymentIntent)
+	fmt.Println("url : ", s.URL)
+	fmt.Println("success url: ", s.SuccessURL)
+
+	return err
+}
+
+func confirmPaymentIntent() error {
+	params := &stripe.PaymentIntentConfirmParams{
+		PaymentMethod: stripe.String("pm_1NhSjZJ39MhrdOSIR62u98H1"),
+	}
+	pi, err := paymentintent.Confirm(
+		"pi_3NhSCKJ39MhrdOSI1OOwc8sr",
+		params,
+	)
+
+	fmt.Println("pi status: ", pi.Status)
+
+	return err
+}
+
+func createPaymentIntent() error {
+	params := &stripe.PaymentIntentParams{
+		Amount:   stripe.Int64(40000),
+		Currency: stripe.String(string(stripe.CurrencyJPY)),
+		Customer: stripe.String("cus_OSbCLY7xLaBtTK"), // test customer1 ( cus_OSbCLY7xLaBtTK )
+	}
+	pi, err := paymentintent.New(params)
+
+	fmt.Println(pi.ID)
+
+	return err
+}
+
+func createPaymentMethod() error {
+	params := &stripe.PaymentMethodParams{
+		Card: &stripe.PaymentMethodCardParams{
+			Token: stripe.String("tok_1NhSioJ39MhrdOSI3uohUpVp"),
+		},
+		Type: stripe.String("card"),
+	}
+	pm, err := paymentmethod.New(params)
+
+	fmt.Println(pm.ID)
+
+	return err
+}
+
+func getPaymentIntent() error {
+	pi, err := paymentintent.Get(
+		"pi_3NhO4GJ39MhrdOSI1BxQ5YxD",
+		nil,
+	)
+
+	fmt.Println(pi.Status)
+
+	return err
+}
+
+func getSession() error {
+
+	s, err := session.Get(
+		"cs_test_a1Ybob68FTfhBeS7gbxb64HyNuiSVhkQGLecYOFRQBmzOiuNeKugvZtD4G",
+		nil,
+	)
+	fmt.Println("session id : ", s.ID)
+	fmt.Println("cancel url : ", s.CancelURL)
+	fmt.Println("status: ", s.Status)
+	fmt.Println("pi_id : ", s.PaymentIntent)
+	// fmt.Println("success url: ", s.SuccessURL)
+	// fmt.Println(s.LineItems.Data[0].Price.ID)
+
 	return err
 }
 
@@ -92,23 +185,3 @@ func createCustomer() error {
 
 	return err
 }
-
-// func createToken() error {
-// 	params := &stripe.TokenParams{
-// 		Card: &stripe.CardParams{
-// 			Number:   stripe.String("5555555555554444"),
-// 			ExpMonth: stripe.String("12"),
-// 			ExpYear:  stripe.String("2024"),
-// 			CVC:      stripe.String("123"),
-// 			Name:     stripe.String("Sample B"),
-// 		},
-// 	}
-// 	t, err := token.New(params)
-
-// 	fmt.Println("t :", t)
-// 	fmt.Println("id:", t.ID)
-// 	fmt.Println("card:", t.Card)
-// 	fmt.Println("livemode:", t.Livemode)
-
-// 	return err
-// }
