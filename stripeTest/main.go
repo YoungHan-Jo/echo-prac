@@ -7,8 +7,6 @@ import (
 	"github.com/stripe/stripe-go/v74/card"
 	"github.com/stripe/stripe-go/v74/checkout/session"
 	"github.com/stripe/stripe-go/v74/customer"
-	"github.com/stripe/stripe-go/v74/paymentintent"
-	"github.com/stripe/stripe-go/v74/paymentmethod"
 	"github.com/stripe/stripe-go/v74/price"
 	"github.com/stripe/stripe-go/v74/product"
 	"github.com/stripe/stripe-go/v74/subscription"
@@ -23,26 +21,71 @@ func main() {
 	}
 }
 
-func createCard() error {
-	params := &stripe.CardParams{
-		Customer: stripe.String("cus_OSwy42WPhIJtir"),
-		// Token:    stripe.String("tok_jcb"),
-		Token: stripe.String("tok_1NhTmEJ39MhrdOSIDukixKt4"),
-	}
-	c, err := card.New(params)
+// func createInvoice() error {
+// 	params := &stripe.InvoiceParams{
+// 		Customer: stripe.String("cus_OSbCLY7xLaBtTK"),
+// 	}
+// 	in, err := invoice.New(params)
 
-	fmt.Println(c.ID)
-	return err
-}
+// 	fmt.Println(in.ID)
+
+// 	return err
+// }
+
+// func createPaymentIntent() error {
+// 	params := &stripe.PaymentIntentParams{
+// 		Amount:   stripe.Int64(40000),
+// 		Currency: stripe.String(string(stripe.CurrencyJPY)),
+// 		Customer: stripe.String("cus_OSvPe6Edz92bsw"), // test customer1 ( cus_OSbCLY7xLaBtTK )
+// 	}
+// 	pi, err := paymentintent.New(params)
+
+// 	fmt.Println(pi.ID)
+
+// 	return err
+// }
+
+// func confirmPaymentIntent() error {
+// 	params := &stripe.PaymentIntentConfirmParams{
+// 		PaymentMethod: stripe.String("pm_card_visa"),
+// 		// PaymentMethod: stripe.String("pm_1NhiwyJ39MhrdOSIOpEM1Zjr"),
+// 		// PaymentMethod: stripe.String("pm_card_visa_chargeDeclined"),
+// 	}
+// 	pi, err := paymentintent.Confirm(
+// 		"pi_3NhivsJ39MhrdOSI00YtoeJc",
+// 		params,
+// 	)
+
+// 	fmt.Println("pi status: ", pi.Status)
+
+// 	return err
+// }
+
+// func createPaymentMethod() error {
+// 	params := &stripe.PaymentMethodParams{
+// 		Card: &stripe.PaymentMethodCardParams{
+// 			// Token: stripe.String("tok_1NhVUUJ39MhrdOSI3b3W7NIG"),
+// 			Token: stripe.String("tok_visa_chargeDeclined"),
+// 		},
+// 		Type: stripe.String("card"),
+// 	}
+// 	pm, err := paymentmethod.New(params)
+
+// 	fmt.Println(pm.ID)
+
+// 	return err
+// }
 
 func createSession() error {
 	params := &stripe.CheckoutSessionParams{
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
-				Price:    stripe.String("price_1NfzmjJ39MhrdOSI1lK8jKJ3"),
+				Price: stripe.String("price_1NfzmjJ39MhrdOSI1lK8jKJ3"),
+				// Price:    stripe.String("price_wrong_id"),
 				Quantity: stripe.Int64(3),
 			},
 		},
+		Customer:   stripe.String("cus_OSvPe6Edz92bsw"),            // customer
 		Mode:       stripe.String("payment"),                       // payment, setup, subscription
 		SuccessURL: stripe.String("http://localhost:3333/success"), // 決済成功した後、戻ってくるUrl
 	}
@@ -57,70 +100,100 @@ func createSession() error {
 	return err
 }
 
-func confirmPaymentIntent() error {
-	params := &stripe.PaymentIntentConfirmParams{
-		PaymentMethod: stripe.String("pm_1NhSjZJ39MhrdOSIR62u98H1"),
-	}
-	pi, err := paymentintent.Confirm(
-		"pi_3NhSCKJ39MhrdOSI1OOwc8sr",
-		params,
-	)
+// func createProductAndPrice() error {
+// 	product_params := &stripe.ProductParams{
+// 		Name:        stripe.String("Subscription product sample 1"),
+// 		Description: stripe.String("2万円/月 subscription"),
+// 	}
+// 	starter_product, _ := product.New(product_params)
 
-	fmt.Println("pi status: ", pi.Status)
+// 	price_params := &stripe.PriceParams{
+// 		Currency: stripe.String(string(stripe.CurrencyJPY)),
+// 		Product:  stripe.String(starter_product.ID),
+// 		Recurring: &stripe.PriceRecurringParams{
+// 			Interval: stripe.String(string(stripe.PriceRecurringIntervalMonth)),
+// 		},
+// 		UnitAmount: stripe.Int64(20000),
+// 	}
+// 	starter_price, err := price.New(price_params)
+
+// 	fmt.Println("Success! product id: " + starter_product.ID)
+// 	fmt.Println("Success! price id: " + starter_price.ID)
+
+// 	return err
+// }
+
+// func getPaymentIntent() error {
+// 	pi, err := paymentintent.Get(
+// 		"pi_3NhO4GJ39MhrdOSI1BxQ5YxD",
+// 		nil,
+// 	)
+
+// 	fmt.Println(pi.Status)
+
+// 	return err
+// }
+
+func createCustomer() error {
+	params := &stripe.CustomerParams{
+		Description: stripe.String("subscription failure test customer"),
+	}
+	c, err := customer.New(params)
+
+	fmt.Println(c.ID)
 
 	return err
 }
 
-func createPaymentIntent() error {
-	params := &stripe.PaymentIntentParams{
-		Amount:   stripe.Int64(40000),
+func createCard() error {
+	params := &stripe.CardParams{
+		Customer: stripe.String("cus_OUnfSvQazEfN9k"),
+		Token:    stripe.String("tok_1Ninx6J39MhrdOSIdLidY2oj"),
+		// Token: stripe.String("tok_wrong_token"),
+	}
+	c, err := card.New(params)
+
+	fmt.Println(c.ID)
+	return err
+}
+
+func createTestProductAndPrice() error {
+	product_params := &stripe.ProductParams{
+		Name:        stripe.String("product sample 1"),
+		Description: stripe.String("1万円"),
+	}
+	starter_product, _ := product.New(product_params)
+
+	price_params := &stripe.PriceParams{
 		Currency: stripe.String(string(stripe.CurrencyJPY)),
-		Customer: stripe.String("cus_OSbCLY7xLaBtTK"), // test customer1 ( cus_OSbCLY7xLaBtTK )
+		Product:  stripe.String(starter_product.ID),
+		// Recurring: &stripe.PriceRecurringParams{
+		// 	Interval: stripe.String(string(stripe.PriceRecurringIntervalMonth)),
+		// },
+		UnitAmount: stripe.Int64(10000),
 	}
-	pi, err := paymentintent.New(params)
+	starter_price, err := price.New(price_params)
 
-	fmt.Println(pi.ID)
+	fmt.Println("Success! product id: " + starter_product.ID)
+	fmt.Println("Success! price id: " + starter_price.ID)
 
 	return err
 }
 
-func createPaymentMethod() error {
-	params := &stripe.PaymentMethodParams{
-		Card: &stripe.PaymentMethodCardParams{
-			Token: stripe.String("tok_1NhSioJ39MhrdOSI3uohUpVp"),
+func createSubscription() error {
+	params := &stripe.SubscriptionParams{
+		Customer: stripe.String("cus_OUnfSvQazEfN9k"),
+		Items: []*stripe.SubscriptionItemsParams{
+			{
+				Price: stripe.String("price_1Ng02DJ39MhrdOSI8OnbmthF"),
+				// Price: stripe.String("price_1NhUdqJ39MhrdOSIQqNwAlDO"), // not subscription
+				// Price: stripe.String("price_wrong_id"),
+			},
 		},
-		Type: stripe.String("card"),
 	}
-	pm, err := paymentmethod.New(params)
+	s, err := subscription.New(params)
 
-	fmt.Println(pm.ID)
-
-	return err
-}
-
-func getPaymentIntent() error {
-	pi, err := paymentintent.Get(
-		"pi_3NhO4GJ39MhrdOSI1BxQ5YxD",
-		nil,
-	)
-
-	fmt.Println(pi.Status)
-
-	return err
-}
-
-func getSession() error {
-
-	s, err := session.Get(
-		"cs_test_a1Ybob68FTfhBeS7gbxb64HyNuiSVhkQGLecYOFRQBmzOiuNeKugvZtD4G",
-		nil,
-	)
-	fmt.Println("session id : ", s.ID)
-	fmt.Println("cancel url : ", s.CancelURL)
-	fmt.Println("status: ", s.Status)
-	fmt.Println("pi_id : ", s.PaymentIntent)
-	// fmt.Println("success url: ", s.SuccessURL)
-	// fmt.Println(s.LineItems.Data[0].Price.ID)
+	fmt.Println("subscription: ", s.ID)
 
 	return err
 }
@@ -132,56 +205,6 @@ func cancelSubscription() error {
 	)
 
 	fmt.Println(s.ID)
-
-	return err
-}
-
-func createSubscription() error {
-	params := &stripe.SubscriptionParams{
-		Customer: stripe.String("cus_OSw75Flxl2ZDU2"),
-		Items: []*stripe.SubscriptionItemsParams{
-			{
-				Price: stripe.String("price_1Ng02DJ39MhrdOSI8OnbmthF"),
-			},
-		},
-	}
-	s, err := subscription.New(params)
-
-	fmt.Println("subscription: ", s.ID)
-
-	return err
-}
-
-func createProductAndPrice() error {
-	product_params := &stripe.ProductParams{
-		Name:        stripe.String("Subscription product sample 1"),
-		Description: stripe.String("2万円/月 subscription"),
-	}
-	starter_product, _ := product.New(product_params)
-
-	price_params := &stripe.PriceParams{
-		Currency: stripe.String(string(stripe.CurrencyJPY)),
-		Product:  stripe.String(starter_product.ID),
-		Recurring: &stripe.PriceRecurringParams{
-			Interval: stripe.String(string(stripe.PriceRecurringIntervalMonth)),
-		},
-		UnitAmount: stripe.Int64(20000),
-	}
-	starter_price, err := price.New(price_params)
-
-	fmt.Println("Success! product id: " + starter_product.ID)
-	fmt.Println("Success! price id: " + starter_price.ID)
-
-	return err
-}
-
-func createCustomer() error {
-	params := &stripe.CustomerParams{
-		Description: stripe.String("test customer5"),
-	}
-	c, err := customer.New(params)
-
-	fmt.Println(c.ID)
 
 	return err
 }

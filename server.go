@@ -31,8 +31,7 @@ func main() {
 		claims := &map[string]interface{}{
 			"https://hasura.io/jwt/claims": map[string]interface{}{
 				"x-hasura-default-role":  "admin",
-				"x-hasura-allowed-roles": []string{"user", "admin"},
-				"x-hasura-user-id":       uid,
+				"x-hasura-allowed-roles": []string{"admin"},
 			},
 		}
 

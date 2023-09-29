@@ -38,7 +38,7 @@ func main() {
 }
 
 func handleWebhook(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("--------------------")
+	fmt.Println("----------webhook----------")
 	const MaxBodyBytes = int64(65536)
 	req.Body = http.MaxBytesReader(w, req.Body, MaxBodyBytes)
 	payload, err := io.ReadAll(req.Body)
@@ -64,6 +64,7 @@ func handleWebhook(w http.ResponseWriter, req *http.Request) {
 	// Unmarshal the event data into an appropriate struct depending on its Type
 	switch event.Type {
 	case "payment_intent.succeeded":
+		fmt.Fprintf(os.Stderr, "Unhandled event type: %s\n", event.Type)
 		fmt.Println("PaymentIntent was successful!")
 		data := event.Data.Object
 		fmt.Println("id: ", data["id"])
@@ -71,6 +72,12 @@ func handleWebhook(w http.ResponseWriter, req *http.Request) {
 
 		// Then define and call a function to handle the event payment_intent.succeeded
 	// ... handle other event types
+	case "payment_intent.payment_failed":
+		fmt.Fprintf(os.Stderr, "Unhandled event type: %s\n", event.Type)
+		fmt.Println("PaymentIntent was failed!")
+		data := event.Data.Object
+		fmt.Println("id: ", data["id"])
+		fmt.Println("status : ", data["status"])
 	default:
 		fmt.Fprintf(os.Stderr, "Unhandled event type: %s\n", event.Type)
 	}
